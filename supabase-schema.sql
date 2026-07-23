@@ -41,3 +41,8 @@ create policy "only sent rows can be updated" on contracts
   for update
   using (status = 'sent')
   with check (true);
+
+-- 상담자가 확인 후 삭제할 수 있도록 허용
+create policy "anyone can delete" on contracts
+  for delete
+  using (true);

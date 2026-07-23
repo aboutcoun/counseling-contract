@@ -34,6 +34,7 @@ export default function ClientFormPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const modalSigRef = useRef<SignaturePadHandle>(null);
 
   useEffect(() => {
@@ -102,6 +103,7 @@ export default function ClientFormPage() {
       return;
     }
     setSubmitted(true);
+    setShowSuccessModal(true);
   };
 
   if (loading) {
@@ -183,6 +185,23 @@ export default function ClientFormPage() {
                 저장
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showSuccessModal && (
+        <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-lg">
+            <div className="mb-3 text-4xl">✅</div>
+            <h2 className="mb-2 text-lg font-bold">제출이 완료되었습니다</h2>
+            <p className="mb-5 text-sm text-ink/60">
+              담당 상담자가 확인 후 최종 서명하여 다시 안내드립니다. 감사합니다.
+            </p>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="w-full rounded-md bg-ink py-2.5 text-sm font-medium text-white hover:bg-ink/85"
+            >
+              확인
+            </button>
           </div>
         </div>
       )}

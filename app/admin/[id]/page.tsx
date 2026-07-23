@@ -12,6 +12,9 @@ export default function AdminDetailPage() {
   const id = params.id as string;
   const [row, setRow] = useState<ContractRow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -20,6 +23,18 @@ export default function AdminDetailPage() {
       setLoading(false);
     })();
   }, [id]);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError("");
+    const { error } = await supabase.from("contracts").delete().eq("id", id);
+    setDeleting(false);
+    if (error) {
+      setDeleteError("삭제 중 문제가 발생했습니다: " + error.message);
+      return;
+    }
+    router.push("/admin");
+  };
 
   if (loading) return <main className="flex min-h-screen items-center justify-center text-ink/50">불러오는 중...</main>;
   if (!row) return <main className="flex min-h-screen items-center justify-center text-ink/50">계약서를 찾을 수 없습니다.</main>;
@@ -63,9 +78,42 @@ export default function AdminDetailPage() {
           >
             인쇄 / PDF 저장
           </button>
+          <button
+            onClick={() => setConfirmingDelete(true)}
+            className="rounded-md border border-alert/40 px-3 py-1.5 text-sm font-medium text-alert hover:bg-alert/5"
+          >
+            삭제
+          </button>
         </div>
       </div>
       <ContractDocument data={fields} mode="view" />
+
+      {confirmingDelete && (
+        <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
+            <h2 className="mb-2 text-lg font-bold">이 계약서를 삭제할까요?</h2>
+            <p className="mb-4 text-sm text-ink/60">
+              {row.client_name} 님의 계약서가 영구적으로 삭제됩니다. 되돌릴 수 없습니다.
+            </p>
+            {deleteError && <p className="mb-3 text-sm text-alert">{deleteError}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmingDelete(false)}
+                className="flex-1 rounded-md border border-line py-2.5 text-sm font-medium hover:bg-paper"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 rounded-md bg-alert py-2.5 text-sm font-medium text-white hover:bg-alert/90 disabled:opacity-50"
+              >
+                {deleting ? "삭제 중..." : "삭제"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

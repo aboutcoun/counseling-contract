@@ -13,6 +13,7 @@ export type ContractFields = {
   contact2_relation: string;
   contact3_phone: string;
   contact3_relation: string;
+  pledge_signature: string | null;
   client_signature: string | null;
   submitted_at: string | null;
 };
@@ -24,6 +25,7 @@ type Props = {
     key: "contact1_phone" | "contact1_relation" | "contact2_phone" | "contact2_relation" | "contact3_phone" | "contact3_relation",
     value: string
   ) => void;
+  onSignatureClick?: (slot: "pledge" | "contract") => void;
 };
 
 function Blank({ value, placeholder }: { value: string; placeholder?: string }) {
@@ -72,12 +74,12 @@ function formatDate(iso: string | null) {
   };
 }
 
-export default function ContractDocument({ data, mode, onContactChange }: Props) {
+export default function ContractDocument({ data, mode, onContactChange, onSignatureClick }: Props) {
   const editable = mode === "client-edit";
   const date = formatDate(data.submitted_at ?? (editable ? new Date().toISOString() : null));
 
   return (
-    <div className="mx-auto max-w-[720px] bg-white px-8 py-10 font-serif text-[15px] leading-7 text-ink shadow-sm print:shadow-none">
+    <div className="contract-doc mx-auto max-w-[720px] bg-white px-8 py-10 font-serif text-[15px] leading-7 text-ink shadow-sm print:shadow-none">
       <h1 className="mb-6 text-center text-xl font-bold tracking-wide">상담계약서</h1>
 
       <p className="mb-6">
@@ -323,7 +325,13 @@ export default function ContractDocument({ data, mode, onContactChange }: Props)
         <div className="flex items-center justify-end gap-2">
           <span className="font-medium">서약자:</span>
           <Blank value={data.client_name} />
-          <SignatureSlot dataUrl={data.client_signature} width={140} height={56} label="서약자 서명" />
+          <SignatureSlot
+            dataUrl={data.pledge_signature}
+            width={140}
+            height={56}
+            label="서약자 서명"
+            onClick={onSignatureClick ? () => onSignatureClick("pledge") : undefined}
+          />
         </div>
       </div>
 
@@ -346,7 +354,13 @@ export default function ContractDocument({ data, mode, onContactChange }: Props)
         <div className="flex items-center justify-end gap-3">
           <span className="font-medium">내담자</span>
           <Blank value={data.client_name} />
-          <SignatureSlot dataUrl={data.client_signature} width={140} height={56} label="내담자 서명" />
+          <SignatureSlot
+            dataUrl={data.client_signature}
+            width={140}
+            height={56}
+            label="내담자 서명"
+            onClick={onSignatureClick ? () => onSignatureClick("contract") : undefined}
+          />
         </div>
         <div className="flex items-center justify-end gap-3">
           <span className="font-medium">상담자</span>
@@ -363,23 +377,39 @@ function SignatureSlot({
   width,
   height,
   label,
+  onClick,
 }: {
   dataUrl: string | null;
   width: number;
   height: number;
   label: string;
+  onClick?: () => void;
 }) {
+  const content = dataUrl ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={dataUrl} alt={label} style={{ height: height - 8, objectFit: "contain" }} />
+  ) : (
+    <span className={`pb-1 text-xs ${onClick ? "text-accent underline" : "text-ink/30"}`}>
+      {onClick ? "클릭하여 서명" : "(서명)"}
+    </span>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        style={{ width, height }}
+        className="flex items-center justify-center border-b border-dashed border-accent/60 transition hover:bg-accent/5 print:border-solid print:border-ink/50"
+      >
+        {content}
+      </button>
+    );
+  }
+
   return (
-    <span
-      style={{ width, height }}
-      className="flex items-center justify-center border-b border-ink/50"
-    >
-      {dataUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={dataUrl} alt={label} style={{ height: height - 8, objectFit: "contain" }} />
-      ) : (
-        <span className="pb-1 text-xs text-ink/30">(서명)</span>
-      )}
+    <span style={{ width, height }} className="flex items-center justify-center border-b border-ink/50">
+      {content}
     </span>
   );
 }

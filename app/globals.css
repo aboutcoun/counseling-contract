@@ -17,4 +17,30 @@ body {
   .no-print {
     display: none !important;
   }
+  .contract-doc {
+    max-width: 100% !important;
+    padding: 12px 6px !important;
+    font-size: 10.5px !important;
+    line-height: 1.45 !important;
+  }
+  .contract-doc h1 {
+    font-size: 15px !important;
+    margin-bottom: 10px !important;
+  }
+  .contract-doc h2 {
+    font-size: 12px !important;
+    margin-top: 10px !important;
+    margin-bottom: 4px !important;
+  }
+  .contract-doc h3 {
+    font-size: 11px !important;
+    margin-bottom: 2px !important;
+  }
+  .contract-doc p,
+  .contract-doc li {
+    margin-bottom: 6px !important;
+  }
+  .contract-doc ol {
+    margin-bottom: 6px !important;
+  }
 }

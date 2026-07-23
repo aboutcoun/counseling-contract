@@ -20,6 +20,7 @@ export type ContractRow = {
   contact2_relation: string | null;
   contact3_phone: string | null;
   contact3_relation: string | null;
+  pledge_signature: string | null;
   client_signature: string | null;
   submitted_at: string | null;
   created_at: string;

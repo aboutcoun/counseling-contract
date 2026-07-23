@@ -46,6 +46,10 @@ npm run dev
     drop policy if exists "only sent rows can be updated" on contracts;
     create policy "only sent rows can be updated" on contracts for update using (status = 'sent') with check (true);
     ```
+- **서약자 서명 / 내담자 서명이 이제 완전히 분리되었습니다.** 문서 안의 각 "(클릭하여 서명)" 영역을 누르면 팝업이 뜨고, 그 안에서만 서명해서 저장합니다. 기존에 이미 컬럼을 만드신 분들은(위 SQL을 이미 실행하셨다면) 아래 한 줄만 추가로 실행해 주세요.
+    ```sql
+    alter table contracts add column if not exists pledge_signature text;
+    ```
 - **로그인은 상담자 전체가 공용 비밀번호 하나를 씁니다.** 개별 계정 구분은 하지 않습니다. (기존 근무표 앱과 동일한 방식)
 - **연락처1·2는 필수, 연락처3은 선택**으로 만들었습니다 (원본 문서에서 1·2번만 노란 강조 표시가 되어 있어서요).
 - 내담자가 제출을 완료하면 그 링크는 읽기 전용으로 바뀌고, 서버(DB) 단에서도 더 이상 수정되지 않도록 막아뒀습니다.

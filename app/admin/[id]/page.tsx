@@ -37,6 +37,7 @@ export default function AdminDetailPage() {
     contact2_relation: row.contact2_relation ?? "",
     contact3_phone: row.contact3_phone ?? "",
     contact3_relation: row.contact3_relation ?? "",
+    pledge_signature: row.pledge_signature,
     client_signature: row.client_signature,
     submitted_at: row.submitted_at,
   };

@@ -17,6 +17,7 @@ create table if not exists contracts (
   contact2_relation text,
   contact3_phone text,
   contact3_relation text,
+  pledge_signature text,
   client_signature text,
   submitted_at timestamptz,
   created_at timestamptz not null default now()

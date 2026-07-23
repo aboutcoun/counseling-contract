@@ -56,6 +56,12 @@ function ContactInput({
   );
 }
 
+function getSessionFee(counselorName: string, level: string) {
+  if (counselorName.trim() === "함광성" && level === "1급") return "120,000원";
+  if (level === "2급") return "80,000원";
+  return "100,000원";
+}
+
 function formatDate(iso: string | null) {
   if (!iso) return { y: "", m: "", d: "" };
   const dt = new Date(iso);
@@ -68,13 +74,11 @@ function formatDate(iso: string | null) {
 
 export default function ContractDocument({ data, mode, onContactChange }: Props) {
   const editable = mode === "client-edit";
-  const date = formatDate(data.submitted_at);
+  const date = formatDate(data.submitted_at ?? (editable ? new Date().toISOString() : null));
 
   return (
     <div className="mx-auto max-w-[720px] bg-white px-8 py-10 font-serif text-[15px] leading-7 text-ink shadow-sm print:shadow-none">
-      <h1 className="mb-6 text-center text-xl font-bold tracking-wide">
-        상담계약서( <Blank value={data.counselor_level} /> )
-      </h1>
+      <h1 className="mb-6 text-center text-xl font-bold tracking-wide">상담계약서</h1>
 
       <p className="mb-6">
         본 계약서는 상담자에 대한 배경정보, 전문상담 관계 및 절차, 상담자와 내담자의 권리 및 의무에 대한
@@ -224,7 +228,7 @@ export default function ContractDocument({ data, mode, onContactChange }: Props)
       </p>
       <h3 className="mb-1 font-semibold">상담비 방침</h3>
       <p className="mb-4">
-        1회기의 비용은 (1급: 100,000원/2급: 80,000원)이며 4회기 단위로 일괄 납부합니다. 납부된 비용에
+        1회기의 비용은 {getSessionFee(data.counselor_name, data.counselor_level)}이며 4회기 단위로 일괄 납부합니다. 납부된 비용에
         해당하는 회기를 모두 진행하지 못하고 종결하였을 경우 남은 회기에 대한 금액은 전액 환불됩니다.
         부득이한 경우 상담 시간을 변경하실 수 있습니다. 4회기 진행 중 일정 변경은 2회 가능하며, 일정 취소
         및 변경시에는 24시간 전까지 연락을 주셔야 합니다. 일정 변경이 2회를 초과하거나, 24시간 이내로
@@ -237,10 +241,7 @@ export default function ContractDocument({ data, mode, onContactChange }: Props)
         등의 긴급상황의 경우 아래 연락처로 연락하실 수 있습니다. 30분 이상 지속되는 통화에 대해서는
         상담료가 청구될 수 있으며, 상담료를 청구해야할 경우 상담자가 안내해드립니다. 상담자의 개인 사정으로
         전화를 받지 못할 수 있으며, 이럴 경우 문자를 남겨주시면 36시간 이내로 답변을 드리겠습니다.
-        (비상연락처: 어바웃,{" "}
-        <span className={data.branch === "안양점" ? "font-bold underline" : ""}>안양점:010-2497-8708</span>{" "}
-        /{" "}
-        <span className={data.branch === "수원점" ? "font-bold underline" : ""}>수원점: 010-7517-8708</span>)
+        (비상연락처: 어바웃 {data.branch}, {data.branch === "안양점" ? "010-2497-8708" : "010-7517-8708"})
       </p>
 
       <div className="my-10 border-2 border-ink px-6 py-8">
@@ -259,39 +260,50 @@ export default function ContractDocument({ data, mode, onContactChange }: Props)
           </li>
         </ol>
 
-        <div className="mb-6 space-y-2 bg-ink/[0.03] p-4 text-[14px]">
-          <div className="flex flex-wrap items-center gap-1">
-            <span className="font-medium">연락처1:</span> (번호){" "}
-            <ContactInput
-              value={data.contact1_phone}
-              onChange={editable ? (v) => onContactChange?.("contact1_phone", v) : undefined}
-              placeholder="010-0000-0000"
-            />
-            <span className="ml-2 font-medium">(관계)</span>{" "}
-            <ContactInput
-              value={data.contact1_relation}
-              onChange={editable ? (v) => onContactChange?.("contact1_relation", v) : undefined}
-              placeholder="예: 부모"
-              width="w-20"
-            />
+        <div className="mb-6 space-y-2 text-[14px]">
+          <div className="space-y-2 p-4" style={{ background: "#fdf6d8" }}>
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="font-medium">
+                연락처1: <span className="text-alert">*필수</span>
+              </span>{" "}
+              (번호){" "}
+              <ContactInput
+                value={data.contact1_phone}
+                onChange={editable ? (v) => onContactChange?.("contact1_phone", v) : undefined}
+                placeholder="010-0000-0000"
+              />
+              <span className="ml-2 font-medium">(관계)</span>{" "}
+              <ContactInput
+                value={data.contact1_relation}
+                onChange={editable ? (v) => onContactChange?.("contact1_relation", v) : undefined}
+                placeholder="예: 부모"
+                width="w-20"
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="font-medium">
+                연락처2: <span className="text-alert">*필수</span>
+              </span>{" "}
+              (번호){" "}
+              <ContactInput
+                value={data.contact2_phone}
+                onChange={editable ? (v) => onContactChange?.("contact2_phone", v) : undefined}
+                placeholder="010-0000-0000"
+              />
+              <span className="ml-2 font-medium">(관계)</span>{" "}
+              <ContactInput
+                value={data.contact2_relation}
+                onChange={editable ? (v) => onContactChange?.("contact2_relation", v) : undefined}
+                placeholder="예: 배우자"
+                width="w-20"
+              />
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-1">
-            <span className="font-medium">연락처2:</span> (번호){" "}
-            <ContactInput
-              value={data.contact2_phone}
-              onChange={editable ? (v) => onContactChange?.("contact2_phone", v) : undefined}
-              placeholder="010-0000-0000"
-            />
-            <span className="ml-2 font-medium">(관계)</span>{" "}
-            <ContactInput
-              value={data.contact2_relation}
-              onChange={editable ? (v) => onContactChange?.("contact2_relation", v) : undefined}
-              placeholder="예: 배우자"
-              width="w-20"
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-1">
-            <span className="font-medium">연락처3:</span> (번호){" "}
+          <div className="flex flex-wrap items-center gap-1 bg-ink/[0.03] p-4">
+            <span className="font-medium">
+              연락처3: <span className="text-ink/40">(선택)</span>
+            </span>{" "}
+            (번호){" "}
             <ContactInput
               value={data.contact3_phone}
               onChange={editable ? (v) => onContactChange?.("contact3_phone", v) : undefined}
@@ -308,8 +320,9 @@ export default function ContractDocument({ data, mode, onContactChange }: Props)
           <p>24시간 상담전화 — 109(자살예방상담전화), 129(희망의 전화), 1588-9191(생명의 전화)</p>
         </div>
 
-        <div className="flex justify-end">
-          <span className="mr-2 font-medium">서약자:</span>
+        <div className="flex items-center justify-end gap-2">
+          <span className="font-medium">서약자:</span>
+          <Blank value={data.client_name} />
           <SignatureSlot dataUrl={data.client_signature} width={140} height={56} label="서약자 서명" />
         </div>
       </div>

@@ -38,4 +38,5 @@ create policy "anyone can select" on contracts
 -- (이미 제출 완료된 계약서는 더 이상 수정할 수 없음)
 create policy "only sent rows can be updated" on contracts
   for update
-  using (status = 'sent');
+  using (status = 'sent')
+  with check (true);

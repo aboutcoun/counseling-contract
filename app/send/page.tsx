@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { sendContractEmail } from "@/lib/email";
 import SignaturePad, { SignaturePadHandle } from "@/components/SignaturePad";
 
 const BRANCHES = ["안양점", "수원점"] as const;
@@ -18,6 +19,8 @@ export default function SendPage() {
   const [error, setError] = useState("");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "sent" | "failed">("idle");
+  const [emailError, setEmailError] = useState("");
   const sigRef = useRef<SignaturePadHandle>(null);
 
   const reset = () => {
@@ -27,6 +30,8 @@ export default function SendPage() {
     sigRef.current?.clear();
     setResultUrl(null);
     setCopied(false);
+    setEmailStatus("idle");
+    setEmailError("");
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -66,6 +71,21 @@ export default function SendPage() {
 
     const url = `${window.location.origin}/form/${data.id}`;
     setResultUrl(url);
+
+    setEmailStatus("sending");
+    const emailResult = await sendContractEmail({
+      toEmail: clientEmail.trim(),
+      toName: clientName.trim(),
+      link: url,
+      counselorName: counselorName.trim(),
+      branch,
+    });
+    if (emailResult.ok) {
+      setEmailStatus("sent");
+    } else {
+      setEmailStatus("failed");
+      setEmailError(emailResult.error ?? "");
+    }
   };
 
   if (resultUrl) {
@@ -74,10 +94,24 @@ export default function SendPage() {
         <div className="rounded-xl border border-line bg-white p-8 shadow-sm">
           <p className="mb-1 text-xs font-medium uppercase tracking-wider text-accent">발송 준비 완료</p>
           <h1 className="mb-4 text-xl font-bold">{clientName} 님에게 전달할 링크</h1>
-          <p className="mb-4 text-sm text-ink/70">
-            아래 링크를 이메일, 문자, 카카오톡 등 편한 방법으로 내담자에게 전달해 주세요. 내담자가 링크에서
-            정보를 입력하고 서명을 완료하면 목록에서 확인하실 수 있습니다.
+          <p className="mb-3 text-sm text-ink/70">
+            내담자가 링크에서 정보를 입력하고 서명을 완료하면 목록에서 확인하실 수 있습니다.
           </p>
+
+          {emailStatus === "sending" && (
+            <p className="mb-4 rounded-md bg-ink/5 px-3 py-2 text-sm text-ink/60">이메일 발송 중...</p>
+          )}
+          {emailStatus === "sent" && (
+            <p className="mb-4 rounded-md bg-accent/10 px-3 py-2 text-sm text-accent">
+              {clientEmail}로 이메일이 자동 발송되었습니다.
+            </p>
+          )}
+          {emailStatus === "failed" && (
+            <p className="mb-4 rounded-md bg-alert/10 px-3 py-2 text-sm text-alert">
+              자동 이메일 발송에 실패했습니다{emailError ? ` (${emailError})` : ""}. 아래 링크를 직접
+              전달해 주세요.
+            </p>
+          )}
           <div className="mb-4 flex items-center gap-2 rounded-md border border-line bg-paper px-3 py-2 text-sm">
             <span className="flex-1 truncate">{resultUrl}</span>
             <button
@@ -124,8 +158,11 @@ export default function SendPage() {
     <main className="mx-auto min-h-screen max-w-lg px-4 py-16">
       <div className="mb-4 flex items-center justify-between">
         <p className="text-xs font-medium uppercase tracking-wider text-accent">ABOUT 심리상담센터</p>
-        <Link href="/admin" className="text-sm text-ink/60 underline underline-offset-2 hover:text-ink">
-          전체 목록 →
+        <Link
+          href="/admin"
+          className="rounded-md border border-ink/20 bg-white px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-paper"
+        >
+          전체 목록 보기 →
         </Link>
       </div>
       <h1 className="mb-1 text-xl font-bold">상담계약서 발송</h1>

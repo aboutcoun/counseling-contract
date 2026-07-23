@@ -246,6 +246,7 @@ export default function ContractDocument({ data, mode, onContactChange, onSignat
         (비상연락처: 어바웃 {data.branch}, {data.branch === "안양점" ? "010-2497-8708" : "010-7517-8708"})
       </p>
 
+      <div className="last-page-block">
       <div className="my-10 border-2 border-ink px-6 py-8">
         <h2 className="mb-6 text-center text-lg font-bold">생명존중 서약서</h2>
         <ol className="mb-6 list-decimal space-y-3 pl-5">
@@ -367,6 +368,7 @@ export default function ContractDocument({ data, mode, onContactChange, onSignat
           <Blank value={data.counselor_name} />
           <SignatureSlot dataUrl={data.counselor_signature} width={140} height={56} label="상담자 서명" />
         </div>
+      </div>
       </div>
     </div>
   );

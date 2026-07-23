@@ -43,4 +43,10 @@ body {
   .contract-doc ol {
     margin-bottom: 6px !important;
   }
+  .last-page-block {
+    break-before: page;
+    page-break-before: always;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }
